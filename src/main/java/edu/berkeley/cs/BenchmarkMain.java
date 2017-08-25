@@ -38,7 +38,7 @@ public class BenchmarkMain {
             cmd = parser.parse(options, args);
         } catch (ParseException e) {
             System.out.println(e.getMessage());
-            formatter.printHelp("timescale-bench", options);
+            formatter.printHelp("bench", options);
             System.exit(1);
         }
 
