@@ -6,7 +6,7 @@ public class BenchmarkMain {
     public static void main(String[] args) {
         Options options = new Options();
 
-        Option benchTypeOpt = new Option("t", "type", true, "Benchmark type (read/write)");
+        Option benchTypeOpt = new Option("T", "type", true, "Benchmark type (read/write)");
         benchTypeOpt.setType(String.class);
         options.addOption(benchTypeOpt);
 
