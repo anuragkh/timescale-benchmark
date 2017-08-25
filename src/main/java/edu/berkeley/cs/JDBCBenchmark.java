@@ -90,7 +90,7 @@ abstract class JDBCBenchmark {
                     System.out.println("Could not parse CSV line " + i + ": " + line);
                     System.exit(1);
                 }
-                data[i] = new DataPoint(Long.parseLong(csv[0]), Double.parseDouble(csv[1]));
+                data[i++] = new DataPoint(Long.parseLong(csv[0]), Double.parseDouble(csv[1]));
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
