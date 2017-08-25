@@ -150,7 +150,7 @@ abstract class JDBCBenchmark {
             Connection conn = createConnection();
             Statement stmt = conn.createStatement();
             String sql1 = "CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;" +
-                    "DROP TABLE IF EXISTS " + TABLE_NAME + ";" +
+                    "DROP TABLE IF EXISTS " + TABLE_NAME + " CASCADE;" +
                     "CREATE TABLE "  + TABLE_NAME + "(time TIMESTAMPTZ NOT NULL, value DOUBLE PRECISION NOT NULL);";
             String sql2 = "TRUNCATE " + TABLE_NAME + ";";
             String sql3 = "SELECT create_hypertable('" + TABLE_NAME + "', 'time');";
