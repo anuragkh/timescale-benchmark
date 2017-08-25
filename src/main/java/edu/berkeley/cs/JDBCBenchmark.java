@@ -9,7 +9,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Properties;
-import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
 abstract class JDBCBenchmark {
@@ -21,19 +20,11 @@ abstract class JDBCBenchmark {
     private int numThreads;
     private String dataSource;
 
-    final static Logger LOG = Logger.getLogger(JDBCBenchmark.class.getName());
     static {
-        LOG.setUseParentHandlers(false);
-
-        try {
-            FileHandler handler = new FileHandler();
-            handler.setFormatter(new LogFormatter());
-            LOG.addHandler(handler);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+        System.setProperty("java.util.logging.SimpleFormatter.format",
+                "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS %4$s %2$s %5$s%6$s%n");
     }
+    final static Logger LOG = Logger.getLogger(JDBCBenchmark.class.getName());
 
     class DataPoint {
         Timestamp time;
