@@ -104,7 +104,7 @@ abstract class JDBCBenchmark {
                 }
             }
         }
-        LOG.info("Finished reading data");
+        LOG.info("Finished reading data: " + data.length + " data points.");
     }
 
     void populateTable() {
