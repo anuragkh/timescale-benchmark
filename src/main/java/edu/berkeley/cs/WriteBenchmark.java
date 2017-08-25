@@ -10,9 +10,9 @@ import java.util.concurrent.*;
 public class WriteBenchmark extends JDBCBenchmark {
     private String insertStmt;
 
-    public WriteBenchmark(String host, String tableName, int batchSize, int numIter, int numThreads, String dataSource) {
-        super(host, tableName, batchSize, numIter, numThreads, dataSource);
-        StringBuilder insertStmtBuilder = new StringBuilder("INSERT INTO " + tableName + "(time, value) VALUES ");
+    public WriteBenchmark(String host, int batchSize, int numIter, int numThreads, String dataSource) {
+        super(host, batchSize, numIter, numThreads, dataSource);
+        StringBuilder insertStmtBuilder = new StringBuilder("INSERT INTO " + TABLE_NAME + "(time, value) VALUES ");
         for (int i = 0; i < getBatchSize(); i++) {
             insertStmtBuilder.append("(?, ?) ");
         }

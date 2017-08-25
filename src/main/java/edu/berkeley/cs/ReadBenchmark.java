@@ -15,9 +15,9 @@ import java.util.concurrent.Future;
 class ReadBenchmark extends JDBCBenchmark {
     private String readStmt;
 
-    ReadBenchmark(String host, String tableName, int batchSize, int numIter, int numThreads, String dataSource) {
-        super(host, tableName, batchSize, numIter, numThreads, dataSource);
-        this.readStmt = "SELECT * FROM " + tableName + " WHERE time >= ? AND time <= ?);";
+    ReadBenchmark(String host, int batchSize, int numIter, int numThreads, String dataSource) {
+        super(host, batchSize, numIter, numThreads, dataSource);
+        this.readStmt = "SELECT * FROM " + TABLE_NAME + " WHERE time >= ? AND time <= ?);";
         createTable();
         populateTable();
     }

@@ -13,8 +13,9 @@ import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
 abstract class JDBCBenchmark {
+    static String TABLE_NAME = "test";
+
     private String hostName;
-    private String tableName;
     private int batchSize;
     private int numIter;
     private int numThreads;
@@ -46,9 +47,8 @@ abstract class JDBCBenchmark {
     }
     private DataPoint[] data;
 
-    JDBCBenchmark(String hostName, String tableName, int batchSize, int numIter, int numThreads, String dataSource) {
+    JDBCBenchmark(String hostName, int batchSize, int numIter, int numThreads, String dataSource) {
         this.hostName = hostName;
-        this.tableName = tableName;
         this.batchSize = batchSize;
         this.numIter = numIter;
         this.numThreads = numThreads;
@@ -56,7 +56,7 @@ abstract class JDBCBenchmark {
         this.data = new DataPoint[getBatchSize() * getNumIter()];
         LOG.info("Created new benchmark with: ");
         LOG.info("\thost: " + hostName);
-        LOG.info("\ttable: " + tableName);
+        LOG.info("\ttable: " + TABLE_NAME);
         LOG.info("\tbatch-size: " + batchSize);
         LOG.info("\tnum-iterations: " + numIter);
         LOG.info("\tnum-threads: " + numThreads);
@@ -84,7 +84,7 @@ abstract class JDBCBenchmark {
         return data.length;
     }
 
-    void readCSV(String dataSource) {
+    private void readCSV(String dataSource) {
         LOG.info("Reading data from " + dataSource + "...");
         BufferedReader br = null;
         String line;
@@ -118,11 +118,11 @@ abstract class JDBCBenchmark {
     }
 
     void populateTable() {
-        LOG.info("Populating table " + tableName + "...");
+        LOG.info("Populating table " + TABLE_NAME + "...");
         try {
             Connection conn = createConnection();
             CopyManager copyManager = new CopyManager((BaseConnection) conn);
-            copyManager.copyIn("COPY " + tableName + " FROM STDIN", new FileReader(dataSource));
+            copyManager.copyIn("COPY " + TABLE_NAME + " FROM STDIN", new FileReader(dataSource));
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -151,10 +151,10 @@ abstract class JDBCBenchmark {
         try {
             Connection conn = createConnection();
             Statement stmt = conn.createStatement();
-            String sql1 = "CREATE TABLE IF NOT EXISTS "  + tableName
+            String sql1 = "CREATE TABLE IF NOT EXISTS "  + TABLE_NAME
                     + "(time TIMESTAMPTZ NOT NULL, value DOUBLE PRECISION NOT NULL);";
-            String sql2 = "TRUNCATE " + tableName + ";";
-            String sql3 = "SELECT create_hypertable('" + tableName + "', 'time');";
+            String sql2 = "TRUNCATE " + TABLE_NAME + ";";
+            String sql3 = "SELECT create_hypertable('" + TABLE_NAME + "', 'time');";
             stmt.execute(sql1);
             stmt.executeUpdate(sql2);
             stmt.executeUpdate(sql3);

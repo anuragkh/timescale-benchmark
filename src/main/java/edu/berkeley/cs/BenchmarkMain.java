@@ -44,7 +44,6 @@ public class BenchmarkMain {
 
         String benchType = cmd.getOptionValue("type", "write");
         String host = cmd.getOptionValue("host", "localhost");
-        String tableName = "test";
         int batchSize = Integer.parseInt(cmd.getOptionValue("batch-size", "1"));
         int numIter = Integer.parseInt(cmd.getOptionValue("num-iterations", "1000"));
         int numThreads = Integer.parseInt(cmd.getOptionValue("num-threads", "1"));
@@ -52,9 +51,9 @@ public class BenchmarkMain {
 
         JDBCBenchmark bench = null;
         if (benchType.equalsIgnoreCase("write")) {
-            bench = new WriteBenchmark(host, tableName, batchSize, numIter, numThreads, dataSource);
+            bench = new WriteBenchmark(host, batchSize, numIter, numThreads, dataSource);
         } else if (benchType.equalsIgnoreCase("read")) {
-            bench = new ReadBenchmark(host, tableName, batchSize, numIter, numThreads, dataSource);
+            bench = new ReadBenchmark(host, batchSize, numIter, numThreads, dataSource);
         }
         assert bench != null;
         bench.runBenchmark();
