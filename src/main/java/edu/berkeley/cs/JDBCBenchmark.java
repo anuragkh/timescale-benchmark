@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Properties;
+import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
 abstract class JDBCBenchmark {
@@ -20,6 +21,18 @@ abstract class JDBCBenchmark {
     private String dataSource;
 
     final static Logger LOG = Logger.getLogger(JDBCBenchmark.class.getName());
+    static {
+        LOG.setUseParentHandlers(false);
+
+        try {
+            FileHandler handler = new FileHandler();
+            handler.setFormatter(new LogFormatter());
+            LOG.addHandler(handler);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
 
     class DataPoint {
         Timestamp time;
