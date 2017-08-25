@@ -31,10 +31,15 @@ abstract class JDBCBenchmark {
         double value;
 
         DataPoint(long time, double value) {
-            this.time = new Timestamp(time);
+            this.time = new Timestamp(time / 1000000L);
+            this.time.setNanos((int) (time % 1000000L));
             this.value = value;
         }
 
+        @Override
+        public String toString() {
+            return time.toString() + "\t" + value;
+        }
     }
     private DataPoint[] data;
 
@@ -90,7 +95,9 @@ abstract class JDBCBenchmark {
                     System.out.println("Could not parse CSV line " + i + ": " + line);
                     System.exit(1);
                 }
-                data[i++] = new DataPoint(Long.parseLong(csv[0]), Double.parseDouble(csv[1]));
+                data[i] = new DataPoint(Long.parseLong(csv[0]), Double.parseDouble(csv[1]));
+                System.out.println(data[i].toString());
+                ++i;
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
