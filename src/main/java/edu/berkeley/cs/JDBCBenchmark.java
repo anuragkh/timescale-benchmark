@@ -83,10 +83,10 @@ abstract class JDBCBenchmark {
 
     PreparedStatement prepareWriteStatement(Connection conn) {
         StringBuilder insertStmtBuilder = new StringBuilder("INSERT INTO " + TABLE_NAME + "(time, value) VALUES ");
-        for (int i = 0; i < getBatchSize(); i++) {
-            insertStmtBuilder.append("(?, ?) ");
+        for (int i = 0; i < getBatchSize() - 1; i++) {
+            insertStmtBuilder.append("(?, ?), ");
         }
-        insertStmtBuilder.append(";");
+        insertStmtBuilder.append("(?, ?);");
         PreparedStatement statement = null;
         try {
             statement = conn.prepareStatement(insertStmtBuilder.toString());
@@ -97,7 +97,7 @@ abstract class JDBCBenchmark {
         return statement;
     }
 
-    void prepareWriteBatch(PreparedStatement statement, int dataIdx) {
+    private void prepareWriteBatch(PreparedStatement statement, int dataIdx) {
         for (int i = 0; i < getBatchSize(); i++) {
             try {
                 DataPoint p = dataPoint(dataIdx + i);
