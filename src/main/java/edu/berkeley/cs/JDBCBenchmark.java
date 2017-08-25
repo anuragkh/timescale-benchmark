@@ -112,7 +112,7 @@ abstract class JDBCBenchmark {
     PreparedStatement prepareReadStatement(Connection conn) {
         PreparedStatement statement = null;
         try {
-            statement = conn.prepareStatement("SELECT * FROM " + TABLE_NAME + " WHERE time >= ? AND time <= ?);");
+            statement = conn.prepareStatement("SELECT * FROM " + TABLE_NAME + " WHERE time >= ? AND time <= ?;");
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(1);
