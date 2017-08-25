@@ -78,6 +78,7 @@ public class WriteBenchmark extends JDBCBenchmark {
     }
 
     void runBenchmark() {
+        LOG.info("Running Write Benchmark");
         ExecutorService executor = Executors.newFixedThreadPool(getNumThreads());
         List<WriterTask> tasks = new ArrayList<WriterTask>();
         for (int i = 0; i < getNumThreads(); i++) {

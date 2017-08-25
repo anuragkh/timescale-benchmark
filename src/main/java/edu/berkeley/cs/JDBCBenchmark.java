@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 abstract class JDBCBenchmark {
     private String hostName;
@@ -18,6 +19,8 @@ abstract class JDBCBenchmark {
     private int numIter;
     private int numThreads;
     private String dataSource;
+
+    final static Logger LOG = Logger.getLogger(JDBCBenchmark.class.getName());
 
     class DataPoint {
         Timestamp time;
@@ -40,6 +43,14 @@ abstract class JDBCBenchmark {
         this.numThreads = numThreads;
         this.dataSource = dataSource;
         this.data = new DataPoint[getBatchSize() * getNumIter()];
+        LOG.info("Created new benchmark with: ");
+        LOG.info("\thost: " + hostName);
+        LOG.info("\tdb: " + dbName);
+        LOG.info("\ttable: " + tableName);
+        LOG.info("\tbatch-size: " + batchSize);
+        LOG.info("\tnum-iterations: " + numIter);
+        LOG.info("\tnum-threads: " + numThreads);
+        LOG.info("\tdata-source: " + dataSource);
         readCSV(dataSource);
     }
 
@@ -64,6 +75,7 @@ abstract class JDBCBenchmark {
     }
 
     void readCSV(String dataSource) {
+        LOG.info("Reading data from " + dataSource + "...");
         BufferedReader br = null;
         String line;
         String cvsSplitBy = ",";
@@ -92,9 +104,11 @@ abstract class JDBCBenchmark {
                 }
             }
         }
+        LOG.info("Finished reading data");
     }
 
     void populateTable() {
+        LOG.info("Populating table " + tableName + "...");
         try {
             Connection conn = createConnection();
             CopyManager copyManager = new CopyManager((BaseConnection) conn);
@@ -103,6 +117,7 @@ abstract class JDBCBenchmark {
             e.printStackTrace();
             System.exit(1);
         }
+        LOG.info("Finished populating table");
     }
 
     Connection createConnection() {
