@@ -125,6 +125,7 @@ abstract class JDBCBenchmark {
         try {
             statement.setTimestamp(1, dataPoint(dataIdx).time);
             statement.setTimestamp(2, dataPoint(dataIdx + getBatchSize()).time);
+            System.out.println("Query: " + statement.toString());
         } catch (SQLException e) {
             e.printStackTrace();
         }
