@@ -6,48 +6,22 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 class ReadBenchmark extends JDBCBenchmark {
-    private String readStmt;
-
     ReadBenchmark(String host, int batchSize, int numIter, int numThreads, String dataSource) {
         super(host, batchSize, numIter, numThreads, dataSource);
-        this.readStmt = "SELECT * FROM " + TABLE_NAME + " WHERE time >= ? AND time <= ?);";
         createTable();
         populateTable();
     }
 
-    private PreparedStatement prepareStatement(Connection conn) {
-        PreparedStatement statement = null;
-        try {
-            statement = conn.prepareStatement(readStmt);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-        return statement;
-    }
-
-    private void prepareQuery(PreparedStatement statement) {
-        int dataIdx = (new Random()).nextInt(numPoints() - getBatchSize());
-        try {
-            statement.setTimestamp(1, dataPoint(dataIdx).time);
-            statement.setTimestamp(2, dataPoint(dataIdx + getBatchSize()).time);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     class ReaderTask implements Callable<Result> {
-
         public Result call() throws Exception {
             Connection conn = createConnection();
-            PreparedStatement statement = prepareStatement(conn);
+            PreparedStatement statement = prepareReadStatement(conn);
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < getNumIter(); i++) {
                 prepareQuery(statement);

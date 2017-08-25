@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Properties;
+import java.util.Random;
 import java.util.logging.Logger;
 
 abstract class JDBCBenchmark {
@@ -80,6 +81,55 @@ abstract class JDBCBenchmark {
         return data.length;
     }
 
+    PreparedStatement prepareWriteStatement(Connection conn) {
+        StringBuilder insertStmtBuilder = new StringBuilder("INSERT INTO " + TABLE_NAME + "(time, value) VALUES ");
+        for (int i = 0; i < getBatchSize(); i++) {
+            insertStmtBuilder.append("(?, ?) ");
+        }
+        insertStmtBuilder.append(";");
+        PreparedStatement statement = null;
+        try {
+            statement = conn.prepareStatement(insertStmtBuilder.toString());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return statement;
+    }
+
+    void prepareWriteBatch(PreparedStatement statement, int dataIdx) {
+        for (int i = 0; i < getBatchSize(); i++) {
+            try {
+                DataPoint p = dataPoint(dataIdx + i);
+                statement.setTimestamp(i * 2 + 1, p.time);
+                statement.setDouble(i * 2 + 2, p.value);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    PreparedStatement prepareReadStatement(Connection conn) {
+        PreparedStatement statement = null;
+        try {
+            statement = conn.prepareStatement("SELECT * FROM " + TABLE_NAME + " WHERE time >= ? AND time <= ?);");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return statement;
+    }
+
+    void prepareQuery(PreparedStatement statement) {
+        int dataIdx = (new Random()).nextInt(numPoints() - getBatchSize());
+        try {
+            statement.setTimestamp(1, dataPoint(dataIdx).time);
+            statement.setTimestamp(2, dataPoint(dataIdx + getBatchSize()).time);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void readCSV(String dataSource) {
         LOG.info("Reading data from " + dataSource + "...");
         BufferedReader br = null;
@@ -115,13 +165,30 @@ abstract class JDBCBenchmark {
         LOG.info("Finished reading data: " + data.length + " data points.");
     }
 
+    void writeDataToTable(Connection conn, PreparedStatement statement) {
+        int dataIdx = 0;
+        for (int i = 0; i < getNumIter(); i++) {
+            prepareWriteBatch(statement, dataIdx);
+            try {
+                statement.executeUpdate();
+                conn.commit();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+            dataIdx += getBatchSize();
+        }
+    }
+
     void populateTable() {
         LOG.info("Populating table " + TABLE_NAME + "...");
+        Connection conn = createConnection();
+        PreparedStatement statement = prepareWriteStatement(conn);
+        writeDataToTable(conn, statement);
         try {
-            Connection conn = createConnection();
-            CopyManager copyManager = new CopyManager((BaseConnection) conn);
-            copyManager.copyIn("COPY " + TABLE_NAME + " FROM STDIN", new FileReader(dataSource));
-        } catch (Exception e) {
+            statement.close();
+            conn.close();
+        } catch (SQLException e) {
             e.printStackTrace();
             System.exit(1);
         }
