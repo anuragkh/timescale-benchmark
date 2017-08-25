@@ -3,12 +3,16 @@ package edu.berkeley.cs;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.*;
 
 public class WriteBenchmark extends JDBCBenchmark {
     private String insertStmt;
 
-    public WriteBenchmark(String host, String dbName, String tableName, int batchSize, int numIter, String dataSource) {
-        super(host, dbName, tableName, batchSize, numIter, dataSource);
+    public WriteBenchmark(String host, String dbName, String tableName, int batchSize, int numIter, int numThreads, String dataSource) {
+        super(host, dbName, tableName, batchSize, numIter, numThreads, dataSource);
         StringBuilder insertStmtBuilder = new StringBuilder("INSERT INTO " + tableName + "(time, value) VALUES ");
         for (int i = 0; i < getBatchSize(); i++) {
             insertStmtBuilder.append("(?, ?) ");
@@ -41,33 +45,65 @@ public class WriteBenchmark extends JDBCBenchmark {
         }
     }
 
-    void runBenchmark() {
-        Connection conn = createConnection();
-        PreparedStatement statement = prepareStatement(conn);
-        int dataIdx = 0;
-        long startTime = System.currentTimeMillis();
-        for (int i = 0; i < getNumIter(); i++) {
-            prepareBatch(statement, dataIdx);
+    public class WriterTask implements Callable<Result> {
+        public Result call() throws Exception {
+            Connection conn = createConnection();
+            PreparedStatement statement = prepareStatement(conn);
+            int dataIdx = 0;
+            long startTime = System.currentTimeMillis();
+            for (int i = 0; i < getNumIter(); i++) {
+                prepareBatch(statement, dataIdx);
+                try {
+                    statement.executeUpdate();
+                    conn.commit();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+                dataIdx += getBatchSize();
+            }
+            long endTime = System.currentTimeMillis();
+            long totTime = endTime - startTime;
+            double thput = (double) (getNumIter() * getBatchSize()) / (totTime / 1000.0);
+            double latency = (double) (totTime) / (getNumIter());
             try {
-                statement.executeUpdate();
-                conn.commit();
+                statement.close();
+                conn.close();
             } catch (SQLException e) {
                 e.printStackTrace();
                 System.exit(1);
             }
-            dataIdx += getBatchSize();
+            return new Result(thput, latency);
         }
-        long endTime = System.currentTimeMillis();
-        long totTime = endTime - startTime;
-        double thput = (double) (getNumIter() * getBatchSize()) / (totTime / 1000.0);
-        double latency = (double) (totTime) / (getNumIter());
+    }
+
+    void runBenchmark() {
+        ExecutorService executor = Executors.newFixedThreadPool(getNumThreads());
+        List<WriterTask> tasks = new ArrayList<WriterTask>();
+        for (int i = 0; i < getNumThreads(); i++) {
+            tasks.add(new WriterTask());
+        }
+        List<Future<Result>> futures = null;
         try {
-            statement.close();
-            conn.close();
-        } catch (SQLException e) {
+            futures = executor.invokeAll(tasks);
+        } catch (InterruptedException e) {
             e.printStackTrace();
             System.exit(1);
         }
-        System.out.println(thput + " " + latency);
+        double throughput = 0;
+        double latency = 0;
+        for (Future<Result> future : futures) {
+            try {
+                Result result = future.get();
+                throughput += result.getThroughput();
+                latency += result.getLatency();
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+
+        }
+        latency /= getNumThreads();
+        System.out.println(throughput + " " + latency);
     }
 }

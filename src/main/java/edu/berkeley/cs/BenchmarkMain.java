@@ -22,6 +22,10 @@ public class BenchmarkMain {
         numBatchesOpt.setType(Integer.class);
         options.addOption(numBatchesOpt);
 
+        Option numThreadsOpt = new Option("t", "num-threads", true, "Number of benchmark threads");
+        numThreadsOpt.setType(Integer.class);
+        options.addOption(numThreadsOpt);
+
         Option dataSourceOpt = new Option("d", "data-source", true, "Data source");
         dataSourceOpt.setRequired(true);
         dataSourceOpt.setType(String.class);
@@ -44,13 +48,14 @@ public class BenchmarkMain {
         String tableName = "test";
         int batchSize = Integer.parseInt(cmd.getOptionValue("batch-size", "1"));
         int numIter = Integer.parseInt(cmd.getOptionValue("num-iterations", "1000"));
+        int numThreads = Integer.parseInt(cmd.getOptionValue("num-threads", "1"));
         String dataSource = cmd.getOptionValue("data-source");
 
         JDBCBenchmark bench = null;
         if (benchType.equalsIgnoreCase("write")) {
-            bench = new WriteBenchmark(host, dbName, tableName, batchSize, numIter, dataSource);
+            bench = new WriteBenchmark(host, dbName, tableName, batchSize, numIter, numThreads, dataSource);
         } else if (benchType.equalsIgnoreCase("read")) {
-            bench = new ReadBenchmark(host, dbName, tableName, batchSize, numIter, dataSource);
+            bench = new ReadBenchmark(host, dbName, tableName, batchSize, numIter, numThreads, dataSource);
         }
         assert bench != null;
         bench.runBenchmark();

@@ -16,6 +16,7 @@ abstract class JDBCBenchmark {
     private String tableName;
     private int batchSize;
     private int numIter;
+    private int numThreads;
     private String dataSource;
 
     class DataPoint {
@@ -30,12 +31,13 @@ abstract class JDBCBenchmark {
     }
     private DataPoint[] data;
 
-    JDBCBenchmark(String hostName, String dbName, String tableName, int batchSize, int numIter, String dataSource) {
+    JDBCBenchmark(String hostName, String dbName, String tableName, int batchSize, int numIter, int numThreads, String dataSource) {
         this.hostName = hostName;
         this.dbName = dbName;
         this.tableName = tableName;
         this.batchSize = batchSize;
         this.numIter = numIter;
+        this.numThreads = numThreads;
         this.dataSource = dataSource;
         this.data = new DataPoint[getBatchSize() * getNumIter()];
         readCSV(dataSource);
@@ -47,6 +49,10 @@ abstract class JDBCBenchmark {
 
     int getNumIter() {
         return numIter;
+    }
+
+    int getNumThreads() {
+        return numThreads;
     }
 
     DataPoint dataPoint(int i) {
