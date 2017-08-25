@@ -105,5 +105,6 @@ public class WriteBenchmark extends JDBCBenchmark {
         }
         latency /= getNumThreads();
         System.out.println(throughput + " " + latency);
+        executor.shutdown();
     }
 }

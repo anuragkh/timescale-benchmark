@@ -106,5 +106,6 @@ public class ReadBenchmark extends JDBCBenchmark {
         }
         latency /= getNumThreads();
         System.out.println(throughput + " " + latency);
+        executor.shutdown();
     }
 }
