@@ -36,7 +36,6 @@ class ReadBenchmark extends JDBCBenchmark {
                     System.exit(1);
                 }
                 assert(count == getBatchSize());
-                System.out.println(count);
             }
             long endTime = System.currentTimeMillis();
             long totTime = endTime - startTime;

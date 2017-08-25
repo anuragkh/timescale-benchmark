@@ -125,7 +125,6 @@ abstract class JDBCBenchmark {
         try {
             statement.setTimestamp(1, dataPoint(dataIdx).time);
             statement.setTimestamp(2, dataPoint(dataIdx + getBatchSize()).time);
-            System.out.println("Query: " + statement.toString());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -147,7 +146,6 @@ abstract class JDBCBenchmark {
                     System.exit(1);
                 }
                 data[i] = new DataPoint(Long.parseLong(csv[0]), Double.parseDouble(csv[1]));
-                System.out.println(data[i].toString());
                 ++i;
             }
         } catch (FileNotFoundException e) {
