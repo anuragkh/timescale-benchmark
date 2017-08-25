@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 
 abstract class JDBCBenchmark {
     private String hostName;
-    private String dbName;
     private String tableName;
     private int batchSize;
     private int numIter;
@@ -34,9 +33,8 @@ abstract class JDBCBenchmark {
     }
     private DataPoint[] data;
 
-    JDBCBenchmark(String hostName, String dbName, String tableName, int batchSize, int numIter, int numThreads, String dataSource) {
+    JDBCBenchmark(String hostName, String tableName, int batchSize, int numIter, int numThreads, String dataSource) {
         this.hostName = hostName;
-        this.dbName = dbName;
         this.tableName = tableName;
         this.batchSize = batchSize;
         this.numIter = numIter;
@@ -45,7 +43,6 @@ abstract class JDBCBenchmark {
         this.data = new DataPoint[getBatchSize() * getNumIter()];
         LOG.info("Created new benchmark with: ");
         LOG.info("\thost: " + hostName);
-        LOG.info("\tdb: " + dbName);
         LOG.info("\ttable: " + tableName);
         LOG.info("\tbatch-size: " + batchSize);
         LOG.info("\tnum-iterations: " + numIter);
@@ -121,7 +118,7 @@ abstract class JDBCBenchmark {
     }
 
     Connection createConnection() {
-        String url = "jdbc:postgresql://" + hostName + "/" + dbName;
+        String url = "jdbc:postgresql://" + hostName + "/postgres";
         Properties props = new Properties();
         props.setProperty("user", "postgres");
         Connection conn =  null;

@@ -4,15 +4,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 
 public class WriteBenchmark extends JDBCBenchmark {
     private String insertStmt;
 
-    public WriteBenchmark(String host, String dbName, String tableName, int batchSize, int numIter, int numThreads, String dataSource) {
-        super(host, dbName, tableName, batchSize, numIter, numThreads, dataSource);
+    public WriteBenchmark(String host, String tableName, int batchSize, int numIter, int numThreads, String dataSource) {
+        super(host, tableName, batchSize, numIter, numThreads, dataSource);
         StringBuilder insertStmtBuilder = new StringBuilder("INSERT INTO " + tableName + "(time, value) VALUES ");
         for (int i = 0; i < getBatchSize(); i++) {
             insertStmtBuilder.append("(?, ?) ");

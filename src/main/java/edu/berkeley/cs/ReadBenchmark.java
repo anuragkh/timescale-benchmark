@@ -12,11 +12,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class ReadBenchmark extends JDBCBenchmark {
-    String readStmt;
+class ReadBenchmark extends JDBCBenchmark {
+    private String readStmt;
 
-    ReadBenchmark(String host, String dbName, String tableName, int batchSize, int numIter, int numThreads, String dataSource) {
-        super(host, dbName, tableName, batchSize, numIter, numThreads, dataSource);
+    ReadBenchmark(String host, String tableName, int batchSize, int numIter, int numThreads, String dataSource) {
+        super(host, tableName, batchSize, numIter, numThreads, dataSource);
         this.readStmt = "SELECT * FROM " + tableName + " WHERE time >= ? AND time <= ?);";
         createTable();
         populateTable();
