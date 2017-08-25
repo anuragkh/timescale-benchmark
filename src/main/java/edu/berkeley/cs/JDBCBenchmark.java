@@ -150,7 +150,7 @@ abstract class JDBCBenchmark {
             stmt.execute(sql0);
             stmt.execute(sql1);
             stmt.executeUpdate(sql2);
-            stmt.executeUpdate(sql3);
+            stmt.execute(sql3);
             stmt.close();
             conn.commit();
             conn.close();
