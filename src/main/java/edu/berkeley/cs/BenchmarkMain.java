@@ -6,7 +6,7 @@ public class BenchmarkMain {
     public static void main(String[] args) {
         Options options = new Options();
 
-        Option benchTypeOpt = new Option("T", "type", true, "Benchmark type (read/write)");
+        Option benchTypeOpt = new Option("T", "type", true, "Benchmark type (read/write/load)");
         benchTypeOpt.setType(String.class);
         options.addOption(benchTypeOpt);
 
@@ -54,6 +54,8 @@ public class BenchmarkMain {
             bench = new WriteBenchmark(host, batchSize, numIter, numThreads, dataSource);
         } else if (benchType.equalsIgnoreCase("read")) {
             bench = new ReadBenchmark(host, batchSize, numIter, numThreads, dataSource);
+        } else if (benchType.equalsIgnoreCase("load")) {
+            bench = new LoadData(host, batchSize, numIter, numThreads, dataSource);
         }
         assert bench != null;
         bench.runBenchmark();

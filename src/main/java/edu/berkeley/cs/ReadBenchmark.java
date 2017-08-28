@@ -14,8 +14,6 @@ import java.util.concurrent.Future;
 class ReadBenchmark extends JDBCBenchmark {
     ReadBenchmark(String host, int batchSize, int numIter, int numThreads, String dataSource) {
         super(host, batchSize, numIter, numThreads, dataSource);
-        createTable();
-        populateTable();
     }
 
     class ReaderTask implements Callable<Result> {
