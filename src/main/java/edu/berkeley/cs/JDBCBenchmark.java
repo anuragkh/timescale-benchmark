@@ -1,8 +1,5 @@
 package edu.berkeley.cs;
 
-import org.postgresql.copy.CopyManager;
-import org.postgresql.core.BaseConnection;
-
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -13,13 +10,13 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 abstract class JDBCBenchmark {
-    static String TABLE_NAME = "test";
+    private static String TABLE_NAME = "test";
+    private static int NUM_DATA_PTS = 100000000;
 
     private String hostName;
     private int batchSize;
     private int numIter;
     private int numThreads;
-    private String dataSource;
 
     static {
         System.setProperty("java.util.logging.SimpleFormatter.format",
@@ -49,8 +46,7 @@ abstract class JDBCBenchmark {
         this.batchSize = batchSize;
         this.numIter = numIter;
         this.numThreads = numThreads;
-        this.dataSource = dataSource;
-        this.data = new DataPoint[getBatchSize() * getNumIter()];
+        this.data = new DataPoint[NUM_DATA_PTS];
         LOG.info("Created new benchmark with: ");
         LOG.info("\thost: " + hostName);
         LOG.info("\ttable: " + TABLE_NAME);
@@ -73,11 +69,11 @@ abstract class JDBCBenchmark {
         return numThreads;
     }
 
-    DataPoint dataPoint(int i) {
+    private DataPoint dataPoint(int i) {
         return data[i];
     }
 
-    int numPoints () {
+    private int numPoints() {
         return data.length;
     }
 
