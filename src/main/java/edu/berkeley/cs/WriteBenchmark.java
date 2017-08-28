@@ -18,7 +18,7 @@ class WriteBenchmark extends JDBCBenchmark {
             Connection conn = createConnection();
             PreparedStatement statement = prepareWriteStatement(conn);
             long startTime = System.currentTimeMillis();
-            writeDataToTable(conn, statement);
+            writeDataToTable(conn, statement, getNumIter() * getBatchSize());
             try {
                 statement.close();
                 conn.close();

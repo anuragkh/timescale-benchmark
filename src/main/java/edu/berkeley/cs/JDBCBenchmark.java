@@ -160,9 +160,10 @@ abstract class JDBCBenchmark {
         LOG.info("Finished reading data: " + data.length + " data points.");
     }
 
-    void writeDataToTable(Connection conn, PreparedStatement statement) {
+    void writeDataToTable(Connection conn, PreparedStatement statement, int numDataPts) {
         int dataIdx = 0;
-        for (int i = 0; i < getNumIter(); i++) {
+        int iMax = numDataPts / batchSize;
+        for (int i = 0; i < iMax; i++) {
             prepareWriteBatch(statement, dataIdx);
             try {
                 statement.executeUpdate();
@@ -179,7 +180,7 @@ abstract class JDBCBenchmark {
         LOG.info("Populating table " + TABLE_NAME + "...");
         Connection conn = createConnection();
         PreparedStatement statement = prepareWriteStatement(conn);
-        writeDataToTable(conn, statement);
+        writeDataToTable(conn, statement, NUM_DATA_PTS);
         try {
             statement.close();
             conn.close();
