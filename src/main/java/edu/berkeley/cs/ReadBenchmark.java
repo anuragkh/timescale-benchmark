@@ -22,6 +22,7 @@ class ReadBenchmark extends JDBCBenchmark {
         public Result call() throws Exception {
             Connection conn = createConnection();
             PreparedStatement statement = prepareReadStatement(conn);
+            double sum = 0;
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < getNumIter(); i++) {
                 prepareQuery(statement);
@@ -35,11 +36,16 @@ class ReadBenchmark extends JDBCBenchmark {
                     e.printStackTrace();
                     System.exit(1);
                 }
+                sum += count;
                 assert(count == getBatchSize());
             }
             long endTime = System.currentTimeMillis();
             long totTime = endTime - startTime;
-            double thput = (double) (getNumIter() * getBatchSize()) / (totTime / 1000.0);
+            if (sum != getNumIter() * getBatchSize()) {
+                LOG.warning(String.format("sum(%f) != num-iterations(%d) * batch-size(%d)",
+                        sum, getNumIter(), getBatchSize()));
+            }
+            double thput = sum / (totTime / 1000.0);
             double latency = (double) (totTime) / (getNumIter());
             try {
                 statement.close();
