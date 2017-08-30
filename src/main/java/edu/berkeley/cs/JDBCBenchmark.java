@@ -164,7 +164,7 @@ abstract class JDBCBenchmark {
         long ns = getNS(dataPoint(dataIdx).time);
         long resolutionNs = 1L << getResolution();
         long t1 = ns - (ns % resolutionNs);
-        long t2 = t1 + (1L << resolutionNs);
+        long t2 = t1 + resolutionNs;
         try {
             System.out.print("resolutionNS = " + resolutionNs + " ");
             System.out.println("t1 = " + buildTimestamp(t1) + "(" + t1 + ") t2 = " + buildTimestamp(t2) + "(" + t2 + ")");
