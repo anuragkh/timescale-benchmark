@@ -84,7 +84,7 @@ abstract class JDBCBenchmark {
         return resolution;
     }
 
-    public void setResolution(int resolution) {
+    void setResolution(int resolution) {
         this.resolution = resolution;
     }
 
@@ -161,9 +161,8 @@ abstract class JDBCBenchmark {
 
     void prepareAggregateQuery(PreparedStatement statement) {
         int dataIdx = (new Random()).nextInt(numPoints() / 2);
-        long ns = getNS(dataPoint(dataIdx).time);
-        long t1 = ns - (ns % (1L << resolution));
-        long t2 = t1 + (1 << (resolution + 11));
+        long t1 = getNS(dataPoint(dataIdx).time);
+        long t2 = t1 + (1 << (getResolution() + 11));
         try {
             System.out.println("t1 = " + buildTimestamp(t1) + "(" + t1 + ") t2 = " + buildTimestamp(t2) + "(" + t2 + ")");
             statement.setTimestamp(1, buildTimestamp(t1));
