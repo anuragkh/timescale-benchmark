@@ -165,7 +165,7 @@ abstract class JDBCBenchmark {
         long t1 = ns - (ns % (1L << resolution));
         long t2 = t1 + (1 << (resolution + 11));
         try {
-            System.out.println("t1 = " + buildTimestamp(t1) + " t2 = " + buildTimestamp(t2));
+            System.out.println("t1 = " + buildTimestamp(t1) + "(" + t1 + ") t2 = " + buildTimestamp(t2) + "(" + t2 + ")");
             statement.setTimestamp(1, buildTimestamp(t1));
             statement.setTimestamp(2, buildTimestamp(t2));
         } catch (SQLException e) {
