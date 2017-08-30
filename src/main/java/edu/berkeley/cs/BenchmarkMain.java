@@ -26,6 +26,10 @@ public class BenchmarkMain {
         numThreadsOpt.setType(Integer.class);
         options.addOption(numThreadsOpt);
 
+        Option resolutionOpt = new Option("r", "resolution", true, "Aggregate resolution");
+        resolutionOpt.setType(Integer.class);
+        options.addOption(resolutionOpt);
+
         Option dataSourceOpt = new Option("d", "data-source", true, "Data source");
         dataSourceOpt.setRequired(true);
         dataSourceOpt.setType(String.class);
@@ -47,6 +51,7 @@ public class BenchmarkMain {
         int batchSize = Integer.parseInt(cmd.getOptionValue("batch-size", "1"));
         int numIter = Integer.parseInt(cmd.getOptionValue("num-iterations", "1000"));
         int numThreads = Integer.parseInt(cmd.getOptionValue("num-threads", "1"));
+        int resolution = Integer.parseInt(cmd.getOptionValue("resolution", "32"));
         String dataSource = cmd.getOptionValue("data-source");
 
         JDBCBenchmark bench = null;
@@ -54,10 +59,13 @@ public class BenchmarkMain {
             bench = new WriteBenchmark(host, batchSize, numIter, numThreads, dataSource);
         } else if (benchType.equalsIgnoreCase("read")) {
             bench = new ReadBenchmark(host, batchSize, numIter, numThreads, dataSource);
+        } else if (benchType.equalsIgnoreCase("aggregate")) {
+            bench = new AggregateBenchmark(host, batchSize, numIter, numThreads, dataSource);
         } else if (benchType.equalsIgnoreCase("load")) {
             bench = new LoadData(host, batchSize, numIter, numThreads, dataSource);
         }
         assert bench != null;
+        bench.setResolution(resolution);
         bench.runBenchmark();
     }
 }

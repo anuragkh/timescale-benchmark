@@ -18,6 +18,8 @@ abstract class JDBCBenchmark {
     private int numIter;
     private int numThreads;
 
+    private int resolution;
+
     static {
         System.setProperty("java.util.logging.SimpleFormatter.format",
                 "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS %4$s %2$s %5$s%6$s%n");
@@ -46,6 +48,7 @@ abstract class JDBCBenchmark {
         this.batchSize = batchSize;
         this.numIter = numIter;
         this.numThreads = numThreads;
+        this.resolution = 32;
         this.data = new DataPoint[NUM_DATA_PTS];
         LOG.info("Created new benchmark with: ");
         LOG.info("\thost: " + hostName);
@@ -75,6 +78,24 @@ abstract class JDBCBenchmark {
 
     private int numPoints() {
         return data.length;
+    }
+
+    public int getResolution() {
+        return resolution;
+    }
+
+    public void setResolution(int resolution) {
+        this.resolution = resolution;
+    }
+
+    private Timestamp buildTimestamp(long ns) {
+        Timestamp time = new Timestamp(ns / 1000000L);
+        time.setNanos((int) (ns % 1000000L));
+        return time;
+    }
+
+    private long getNS(Timestamp t) {
+        return t.getTime() * 1000000L + t.getNanos();
     }
 
     PreparedStatement prepareWriteStatement(Connection conn) {
@@ -116,11 +137,36 @@ abstract class JDBCBenchmark {
         return statement;
     }
 
-    void prepareQuery(PreparedStatement statement) {
+    PreparedStatement prepareAggregateStatement(Connection conn) {
+        PreparedStatement statement = null;
+        try {
+            statement = conn.prepareStatement("SELECT COUNT(value), SUM(value), MIN(value), MAX(value) FROM "
+                    + TABLE_NAME + " WHERE time >= ? AND time <= ?;");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return statement;
+    }
+
+    void prepareReadBatch(PreparedStatement statement) {
         int dataIdx = (new Random()).nextInt(numPoints() - getBatchSize());
         try {
             statement.setTimestamp(1, dataPoint(dataIdx).time);
             statement.setTimestamp(2, dataPoint(dataIdx + getBatchSize()).time);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void prepareAggregateQuery(PreparedStatement statement) {
+        int dataIdx = (new Random()).nextInt(numPoints() / 2);
+        long ns = getNS(dataPoint(dataIdx).time);
+        long t1 = ns - (ns % (1L << resolution));
+        long t2 = t1 + (1 << (resolution + 11));
+        try {
+            statement.setTimestamp(1, buildTimestamp(t1));
+            statement.setTimestamp(2, buildTimestamp(t2));
         } catch (SQLException e) {
             e.printStackTrace();
         }

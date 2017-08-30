@@ -11,19 +11,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-class ReadBenchmark extends JDBCBenchmark {
-    ReadBenchmark(String host, int batchSize, int numIter, int numThreads, String dataSource) {
+class AggregateBenchmark extends JDBCBenchmark {
+    AggregateBenchmark(String host, int batchSize, int numIter, int numThreads, String dataSource) {
         super(host, batchSize, numIter, numThreads, dataSource);
     }
 
-    class ReaderTask implements Callable<Result> {
+    class AggregateTask implements Callable<Result> {
         public Result call() throws Exception {
             Connection conn = createConnection();
-            PreparedStatement statement = prepareReadStatement(conn);
+            PreparedStatement statement = prepareAggregateStatement(conn);
             double sum = 0;
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < getNumIter(); i++) {
-                prepareReadBatch(statement);
+                prepareAggregateQuery(statement);
                 int count = 0;
                 try {
                     ResultSet rs = statement.executeQuery();
@@ -35,14 +35,10 @@ class ReadBenchmark extends JDBCBenchmark {
                     System.exit(1);
                 }
                 sum += count;
-                assert(count == getBatchSize());
+                assert(count == 1);
             }
             long endTime = System.currentTimeMillis();
             long totTime = endTime - startTime;
-            if (sum != getNumIter() * getBatchSize()) {
-                LOG.warning(String.format("sum(%f) != num-iterations(%d) * batch-size(%d)",
-                        sum, getNumIter(), getBatchSize()));
-            }
             double thput = sum / (totTime / 1000.0);
             double latency = (double) (totTime) / (getNumIter());
             try {
@@ -58,9 +54,9 @@ class ReadBenchmark extends JDBCBenchmark {
 
     void runBenchmark() {
         ExecutorService executor = Executors.newFixedThreadPool(getNumThreads());
-        List<ReaderTask> tasks = new ArrayList<ReaderTask>();
+        List<AggregateTask> tasks = new ArrayList<AggregateTask>();
         for (int i = 0; i < getNumThreads(); i++) {
-            tasks.add(new ReaderTask());
+            tasks.add(new AggregateTask());
         }
         List<Future<Result>> futures = null;
         try {
