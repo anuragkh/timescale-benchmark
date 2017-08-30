@@ -161,9 +161,12 @@ abstract class JDBCBenchmark {
 
     void prepareAggregateQuery(PreparedStatement statement) {
         int dataIdx = (new Random()).nextInt(numPoints() / 2);
-        long t1 = getNS(dataPoint(dataIdx).time);
-        long t2 = t1 + (1 << (getResolution() + 11));
+        long ns = getNS(dataPoint(dataIdx).time);
+        long resolutionNs = 1L << getResolution();
+        long t1 = ns - (ns % resolutionNs);
+        long t2 = t1 + (1L << resolutionNs);
         try {
+            System.out.print("resolutionNS = " + resolutionNs + " ");
             System.out.println("t1 = " + buildTimestamp(t1) + "(" + t1 + ") t2 = " + buildTimestamp(t2) + "(" + t2 + ")");
             statement.setTimestamp(1, buildTimestamp(t1));
             statement.setTimestamp(2, buildTimestamp(t2));
