@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.concurrent.*;
 
 class WriteBenchmark extends JDBCBenchmark {
-    WriteBenchmark(String host, int batchSize, int numIter, int numThreads, String dataSource) {
-        super(host, batchSize, numIter, numThreads, dataSource);
+    WriteBenchmark(String host, int batchSize, int numIter, int numThreads) {
+        super(host, batchSize, numIter, numThreads);
         createTable();
     }
 
